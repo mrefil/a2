@@ -60,7 +60,7 @@ int main( int argc, char *argv[] ) {
     // Create if else statement to check if input file giving
     if(fileInput[0] != 0) {
         // Check if the file ready to read.
-        if(access(fileInput, READ_OK) != 0) { 
+        if(access(fileInput, R_OK) != 0) { 
             // Print error message.
             // It means there is no input file.
             perror("[ERROR] - Input Error");
