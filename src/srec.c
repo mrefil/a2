@@ -32,7 +32,7 @@ int sRecordLogic(FILE* input, FILE* output) {
     while(outputComplete == false) {
         // Define variables.
         // inputData is not convertd data
-        unsigned char inputData[DATA_RAW_MAX_LENGTH] = {0};
+        unsigned char inputData[MAX_RAW] = {0};
         // This is fomatted out put
         unsigned char dataLength = 0;
         // Address data
@@ -65,7 +65,7 @@ int sRecordLogic(FILE* input, FILE* output) {
             // Add strcpy to function to copy S1 and add it to sRecord[0]
             strcpy(&sRecord[0], "S1");
             // Read data from input
-            dataLength += fread(inputData, 1, DATA_RAW_MAX_LENGTH, input);
+            dataLength += fread(inputData, 1, MAX_RAW, input);
             // Create a while loop and add data to bytesum
             for(int i = 0; i < dataLength; i++) {
                 // Add data to bytesum

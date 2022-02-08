@@ -117,7 +117,7 @@ int main( int argc, char *argv[] ) {
         }
     } else {
         // Start Assmbly mode function
-        if (assemblyLogic(inPtr, outPtr) != 0) {
+        if (ASMFunction(inPtr, outPtr) != 0) {
             // Print error to user if the assembly gives an error.
             printf("[ERROR] - Something went wrong with assembly filter\n");
             // Return -1
