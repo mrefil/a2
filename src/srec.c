@@ -10,96 +10,101 @@
 // Define header file
 #include "../inc/encodeInput.h"
 // Filter type of output
-enum RecordType{ header=0, data=1, summation=5, trailer=9 };
+enum RcrdKind { 
+    header = 0, 
+    data = 1, 
+    summation = 5, 
+    trailer = 9
+};
 // Define max bytes
-#define SREC_ENCODED_LENGTH 44
+#define SREC_LEN 44
 // Define min bytes
-#define MIN_BYTE_COUNT 3
+#define BYTE_MIN 3
 // Define statistic data
-const char HEADERTEXT[] = "Mustafa";
+const char HEADPH[] = "Mustafa";
 // Create a function that read bytes from input line and convert it to srecord format and output
-int sRecordLogic(FILE* input, FILE* output) {
+int SRECFunction(FILE* inputFile, FILE* outputFile) {
     // Define type of record.
-    enum RecordType rType = header;
+    enum RcrdKind rcrdType = header;
     // Add counter
-    unsigned short dataCount = 0;
+    unsigned short countData = 0;
     // Store it to mem
-    unsigned short memPosition = 0;
+    unsigned short memoryPos = 0;
     // Boolean expression for quit loop
-    bool outputComplete = false;
+    bool otpFinish = false;
     // Create a while loop function.
     // Run loop while boolean is false.
-    while(outputComplete == false) {
+    while(otpFinish == false) {
         // Define variables.
-        // inputData is not convertd data
-        unsigned char inputData[MAX_RAW] = {0};
+        // inptChar is not convertd data
+        unsigned char inptChar[MAX_RAW] = {0};
         // This is fomatted out put
-        unsigned char dataLength = 0;
+        unsigned char charLeng = 0;
         // Address data
-        unsigned short address = 0;
+        unsigned short adresData = 0;
         // This is fomatted out put
-        char sRecord[SREC_ENCODED_LENGTH] = {'\0'};
+        char srecRcrd[SREC_LEN] = {'\0'};
         // This is the calculation bytes
-        unsigned short byteSum = 0;
+        unsigned short calcByte = 0;
         // Create switch case function
-        switch (rType) {
+        switch (rcrdType) {
         case header:
-            // Add strcpy to function to copy S0 and add it to sRecord[0]
-            strcpy(&sRecord[0], "S0");
-            // Add strcpy to function to copy HEADERTEXT and add it to inputData
-            strcpy(inputData, HEADERTEXT);
-            // Add lenght to dataLength
-            dataLength += strlen(HEADERTEXT);
-            // Create a while loop and add data to bytesum
-            for(int i = 0; i < dataLength; i++) {
-                // Add data to bytesum
-                byteSum += inputData[i];
+            // Add strcpy to function to copy S0 and add it to srecRcrd[0]
+            strcpy(&srecRcrd[0], "S0");
+            // Add strcpy to function to copy HEADPH and add it to inptChar
+            strcpy(inptChar, HEADPH);
+            // Add lenght to charLeng
+            charLeng += strlen(HEADPH);
+            // Create a while loop and add data to calcByte
+            for(int i = 0; i < charLeng; i++) {
+                // Add data to calcByte
+                calcByte += inptChar[i];
             }
             // Address is 0x0 in header
-            address = 0;
-            // Assign to data to rType
-            rType = data;
+            adresData = 0;
+            // Assign to data to rcrdType
+            rcrdType = data;
             // Break function
             break;
         case data:
-            // Add strcpy to function to copy S1 and add it to sRecord[0]
-            strcpy(&sRecord[0], "S1");
+            // Add strcpy to function to copy S1 and add it to srecRcrd[0]
+            strcpy(&srecRcrd[0], "S1");
             // Read data from input
-            dataLength += fread(inputData, 1, MAX_RAW, input);
-            // Create a while loop and add data to bytesum
-            for(int i = 0; i < dataLength; i++) {
-                // Add data to bytesum
-                byteSum += inputData[i];
+            charLeng += fread(inptChar, 1, MAX_RAW, inputFile);
+            // Create a while loop and add data to calcByte
+            for(int i = 0; i < charLeng; i++) {
+                // Add data to calcByte
+                calcByte += inptChar[i];
             }
-            // Set address
-            address = memPosition;
+            // Set adresData
+            adresData = memoryPos;
             // Increase memory everytime
-            memPosition += 16;
+            memoryPos += 16;
             // Increase counter everytime
-            ++dataCount;
+            ++countData;
             // Create if statement and feof function to add summation next.
-            if(feof(input)) {
-                // Assign summation to rType
-                rType = summation;
+            if(feof(inputFile)) {
+                // Assign summation to rcrdType
+                rcrdType = summation;
             }
             // Break function
             break;
         case summation:
-            // Add strcpy to function to copy S5 and add it to sRecord[0]
-            strcpy(&sRecord[0], "S5");
-            // In here assign dataCount value to address
-            address = dataCount;
-            // Assign to data to rType
-            rType = trailer;
+            // Add strcpy to function to copy S5 and add it to srecRcrd[0]
+            strcpy(&srecRcrd[0], "S5");
+            // In here assign countData value to adresData
+            adresData = countData;
+            // Assign to data to rcrdType
+            rcrdType = trailer;
             // Break function
             break;
         case trailer:
-            // Add strcpy to function to copy S9 and add it to sRecord[0]
-            strcpy(&sRecord[0], "S9");
+            // Add strcpy to function to copy S9 and add it to srecRcrd[0]
+            strcpy(&srecRcrd[0], "S9");
             // Address is 0x0 in header
-            address = 0;
+            adresData = 0;
             // Tell program that outoComplete finish and set it to true
-            outputComplete = true;
+            otpFinish = true;
             // Break function
             break;
         default:
@@ -110,46 +115,46 @@ int sRecordLogic(FILE* input, FILE* output) {
         }
         // Convert data to srecord format
         // Adding count
-        writeHex(sRecord, 1, (unsigned char)(MIN_BYTE_COUNT + dataLength));
+        convertHex(srecRcrd, 1, (unsigned char)(BYTE_MIN + charLeng));
         // Adding count
-        writeHex(sRecord, 2, (unsigned char)(address / 256));
+        convertHex(srecRcrd, 2, (unsigned char)(adresData / 256));
         // Adding count and Max byte
-        writeHex(sRecord, 3, (unsigned char)(address & 0xff));
+        convertHex(srecRcrd, 3, (unsigned char)(adresData & 0xff));
         // Create if else statement to add data
-        if(dataLength > 0) {
+        if(charLeng > 0) {
             // Create for loop to write data
-            for(int i = 0; i < dataLength; i++) {
-                // Assign data to writeHex function
-                writeHex(sRecord, 4+i, inputData[i]);
+            for(int i = 0; i < charLeng; i++) {
+                // Assign data to convertHex function
+                convertHex(srecRcrd, 4+i, inptChar[i]);
             }
         }
-        // Pass bytes value, count and address.
-        byteSum += (MIN_BYTE_COUNT+dataLength) + (address/256) + (address&0xff);
+        // Pass bytes value, count and adresData.
+        calcByte += (BYTE_MIN+charLeng) + (adresData/256) + (adresData&0xff);
         // Checksum
-        writeHex(sRecord, 4+dataLength, (unsigned char)CalculateSum(byteSum));
+        convertHex(srecRcrd, 4+charLeng, (unsigned char)DataSum(calcByte));
         // Add new line for record
-        strcat(sRecord, "\n");
+        strcat(srecRcrd, "\n");
         // Writing records
-        fputs(sRecord, output);
+        fputs(srecRcrd, outputFile);
     }
     // Return
     return 0;
 }
 // Create a function that calculation
-unsigned char CalculateSum(unsigned short byteSum) {
-    // Set byteSum to itself
-    byteSum = ~byteSum;
+unsigned char DataSum(unsigned short calcByte) {
+    // Set calcByte to itself
+    calcByte = ~calcByte;
     // Return last byte
-    return (byteSum & 0xFF);
+    return (calcByte & 0xFF);
 }
 // Create a function that write hex char
-void writeHex(char* destination, int pos, unsigned char c) {
+void convertHex(char* str, int ubu, unsigned char stream) {
     // Create stred char
     char converted[3];
     // Write formatted data to string
-    sprintf(converted, "%02X", c);
+    sprintf(converted, "%02X", stream);
     // Add strcpy to function to copy converted and add it to destination
-    strcpy(&destination[pos*2], converted);
+    strcpy(&str[ubu*2], converted);
     // Return
     return;
 }

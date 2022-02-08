@@ -8,10 +8,10 @@
 #define MAX_RAW 16
 
 // Define srec.c functions
-int sRecordLogic(FILE* input, FILE* output);
-unsigned char CalculateSum(unsigned short byteSum);
-void writeHex(char* destination, int pos, unsigned char c);
+int SRECFunction(FILE* inputFile, FILE* outputFile);
+unsigned char DataSum(unsigned short calcByte);
+void convertHex(char* str, int ubu, unsigned char stream);
 
 // Define assembly.c functions
-int ASMFunction(FILE* input, FILE* output);
+int ASMFunction(FILE* inputFile, FILE* outputFile);
 void convertHexToASM(char* str, unsigned char stream);

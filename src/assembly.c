@@ -16,7 +16,7 @@
 // Create a function that read bytes from input.
 // After reading binary input convert it to dcb assembly.
 // Last oututput it.
-int ASMFunction( FILE* input, FILE* output ) {
+int ASMFunction( FILE* inputFile, FILE* outputFile ) {
     // Create a boolean operation for output is complete or not.
     // Default false.
     bool outData = false;
@@ -28,28 +28,28 @@ int ASMFunction( FILE* input, FILE* output ) {
         unsigned char inptLine[DC_B_LENG] = {0};
         // This is fomatted out put
         char dcbData[DC_B_LENG] = {'\0'};
-        // Define dataLngth to gauge how many success bytes read
-        int dataLngth = 0;
+        // Define lengthOfData to gauge how many success bytes read
+        int lengthOfData = 0;
         // Add strcpy to function to copy dc.b and add it to dcbData
         strcpy( dcbData, "dc.b" );
         // Read an array of DC_B_LENG elements.
         // 1 is bytes for elements to read.
         // inptLine Pointer to a block of memory.
         // input is the pointer of file object.
-        dataLngth += fread( inptLine, 1, DC_B_LENG, input );
+        lengthOfData += fread( inptLine, 1, DC_B_LENG, inputFile );
         // Create if statement and feof function to clear data.
-        if( feof(input) ) {
+        if( feof(inputFile) ) {
             // After that set outData boolean operation to true.
             // This will stop while loop.
             outData = true;
         }
         // Create a for loop to write data to output.
-        // Execute for loop till dataLngth
-        for( int i = 0; i < dataLngth; i++ ){
+        // Execute for loop till lengthOfData
+        for( int i = 0; i < lengthOfData; i++ ){
             // Pass to input data into convertHexToASM function with dcbData.
             convertHexToASM(dcbData, inptLine[i]);
             // Create if statement to add "," to seperate data line.
-            if( i < dataLngth-1 ) {
+            if( i < lengthOfData-1 ) {
                 // Appends a copy of the "," string to the destination dcbData string.
                 strcat( dcbData, "," );
             }
@@ -61,7 +61,7 @@ int ASMFunction( FILE* input, FILE* output ) {
         // This means print dcbData each line.
         printf( "%s\n", dcbData );
         // Writes the C string pointed by dcbData to the output.
-        fputs( dcbData, output );
+        fputs( dcbData, outputFile );
     }
 }
 
